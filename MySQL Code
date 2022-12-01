@@ -1,0 +1,111 @@
+CREATE DATABASE School1;
+USE School1;
+CREATE TABLE Teacher (
+teacher_id INT,
+first_name VARCHAR(40) NOT NULL,
+last_name VARCHAR(40) NOT NULL,
+email VARCHAR(20) UNIQUE,
+phone_no VARCHAR(20) UNIQUE,
+language_1 VARCHAR(3) NOT NULL,
+language_2 VARCHAR(3),
+payment_naira INT,
+start_date DATE,
+PRIMARY KEY(teacher_id)
+);
+CREATE TABLE Client(
+client_id INT,
+name VARCHAR(30) NOT NULL,
+industry VARCHAR(20),
+address VARCHAR(30) NOT NULL,
+PRIMARY KEY(client_id)
+);
+CREATE TABLE Participant (
+participant_id INT,
+first_name VARCHAR(40) NOT NULL,
+last_name VARCHAR(40) NOT NULL,
+email VARCHAR(20) UNIQUE,
+phone_no VARCHAR(20) UNIQUE,
+client INT,
+PRIMARY KEY(participant_id)
+);
+CREATE TABLE Courses (
+course_id INT,
+name VARCHAR(40) NOT NULL,
+start_date DATE,
+end_date DATE,
+location BOOLEAN,
+level INT,
+language VARCHAR(3) NOT NULL,
+teacher INT,
+client INT,
+PRIMARY KEY(course_id),
+FOREIGN KEY(teacher) REFERENCES Teacher(teacher_id) ON DELETE SET NULL,
+FOREIGN KEY(client) REFERENCES Client(client_id) ON DELETE SET NULL
+);
+ALTER TABLE Participant ADD FOREIGN KEY(client) REFERENCES Client(client_id) ON DELETE SET NULL;
+CREATE TABLE takes_courses (
+participant_id INT,
+course_id INT,
+PRIMARY KEY(participant_id, course_id),
+FOREIGN KEY(participant_id) REFERENCES Participant(participant_id) ON DELETE CASCADE,
+FOREIGN KEY(course_id) REFERENCES Courses(course_id) ON DELETE CASCADE
+);
+INSERT INTO Teacher(teacher_id, first_name, last_name, email, phone_no, language_1, language_2, payment_naira, start_date) 
+VALUES (1,'Samuel','Ekwerem','sam_sta@yahoo.com','+2348179613879','ENG',NULL,2000,'2022-12-30'),
+		(2,'Peter','Brown','pound@yahoo.com','+2348179612459','GER','RUS',5000,'1995-01-20'),
+        (3,'Ben','Muoka','benny@yahoo.com','+2348179618239','FRE',NULL,1500,'1950-05-29');
+INSERT INTO Teacher(teacher_id, first_name, last_name, language_1) 
+VALUES (4,'Sam','Ekwe','POL');
+DELETE FROM Teacher WHERE teacher_id=3;
+INSERT INTO Teacher(teacher_id, first_name, last_name, email, phone_no, language_1, language_2, payment_naira, start_date) 
+VALUES (3,'Ben','Muoka','benny@yahoo.com','+2348179618239','FRE',NULL,1500,'1950-05-29');
+UPDATE Teacher SET last_name = 'Moxy' WHERE teacher_id = 3;
+INSERT INTO Client(client_id,name,industry,address)
+VALUES (1,'MoxyDEV','Tech','Abuja'),
+		(2,'PMAX','Medicine','Lagos'),
+        (3,'TCN','Electricity','Kogi'),
+        (4,'AGS','Education','Abuja');
+INSERT INTO Participant(participant_id,first_name,last_name,email,phone_no,client)
+VALUES (1,'Tom','Sam','tom@gmail.com','+2348179612890',4),
+		(2,'Sam','Scott','sam@gmail.com','+2348145612890',4),
+        (3,'Chike','Sam','chike@gmail.com','+2348459612890',3),
+        (4,'Ben','Brown','ben@gmail.com','+2348134612890',1),
+        (5,'Brown','Sam','brown@gmail.com','+2348245612890',2);
+INSERT INTO Courses(course_id,name,start_date,end_date,location,level,language,teacher,client)
+VALUES (1,'Beginner English','2022-01-20','2022-01-21',TRUE,101,'ENG',1,1),
+		(2,'Intermediate English','2022-01-20','2022-01-21',FALSE,102,'ENG',1,1),
+        (3,'Beginner German','2022-01-20','2022-01-21',FALSE,201,'GER',2,4),
+        (4,'Beginner French','2022-01-20','2022-01-21',TRUE,301,'FRE',3,3),
+        (5,'Beginner Polish','2022-01-20','2022-01-21',TRUE,401,'POL',4,4),
+        (6,'Beginner Russian','2022-01-20','2022-01-21',TRUE,501,'RUS',2,2);
+INSERT INTO takes_courses (participant_id,course_id)
+VALUES (1,1),
+		(1,6),
+        (2,5),
+        (3,2),
+        (4,3),
+        (5,4);
+SELECT * FROM Teacher;
+SELECT * FROM Client;
+SELECT * FROM Participant;
+SELECT * FROM Courses;
+SELECT * FROM takes_courses;
+SELECT last_name FROM teacher WHERE teacher_id = 2;
+SELECT * FROM Courses WHERE language = 'ENG';
+SELECT * FROM Courses WHERE language = 'ENG' ORDER BY location;
+SELECT * FROM Courses WHERE language = 'ENG' ORDER BY level DESC;
+SELECT * FROM Teacher WHERE payment_naira > 1800 ORDER BY payment_naira DESC;
+SELECT * FROM Participant WHERE client = 4;
+SELECT * FROM Participant WHERE client = 4 OR client = 1 ORDER BY client;
+SELECT * FROM Participant WHERE NOT client = 4 ORDER BY client;
+SELECT * FROM Participant WHERE client <> 4 AND client != 1 ORDER BY client DESC;
+SELECT first_name,last_name,email,phone_no FROM Teacher WHERE start_date > '1960-01-01' ORDER BY start_date;
+SELECT first_name,last_name,email,start_date FROM Teacher WHERE start_date BETWEEN '1960-01-01' AND '2022-12-30' ORDER BY start_date DESC;
+SELECT * FROM Teacher WHERE last_name LIKE '%ek%';
+SELECT * FROM Teacher WHERE teacher_id = 1 OR teacher_id = 2;
+SELECT * FROM Teacher WHERE teacher_id IN (1,2);
+SELECT first_name from Participant WHERE email IS NOT NULL;
+SELECT name,language FROM Courses WHERE teacher is NULL;
+SELECT * FROM Teacher WHERE language_2 is NULL;
+SELECT teacher_id,first_name,last_name,payment_naira AS 'Payment in ₦' FROM Teacher WHERE teacher_id IN (1,2,3);
+SELECT AVG(payment_naira) AS 'Average payment in ₦' FROM Teacher;
